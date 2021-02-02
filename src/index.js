@@ -23,10 +23,6 @@ retry: same as ARES_OPT_TRIES
 rotate: same as ARES_OPT_ROTATE
 */
 
-dns.setServers([
-    '8.8.8.8'
-]);
-
 function CidrLookup(opts) {
     opts = opts || {};
     opts.concurrency = opts.concurrency || DEFAULT_CONCURRENCY;
@@ -84,6 +80,12 @@ function CidrLookup(opts) {
         }
     }
 
+    function initDnsServer() {
+        if (!opts.server) return;
+        if (typeof opts.server === 'string') opts.server = [ opts.server ];
+        debug('initDnsServer', opts.server);
+        dns.setServers(opts.server);
+    }
 
     async function start(cidr) {
         debug('start', cidr);
@@ -98,6 +100,7 @@ function CidrLookup(opts) {
         block.firstint = ipInt(block.first).toInt();
         block.lastint = ipInt(block.last).toInt();
         debug('start, firstint %s, lastint %s, count %s', block.firstint, block.lastint, block.size);
+        initDnsServer();
         initQueue();
         populateQueue();
     }
