@@ -1,30 +1,35 @@
 {
-  "name": "cidr-lookup",
+  "name": "cidr-rdns",
   "version": "0.0.1",
-  "description": "NodeJS module trying to fetch hostname from a CIDR",
-  "main": "index.js",
+  "description": "NodeJS module requesting PTR record from a IPv4 CIDR range",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eviltik/cidr-lookup.git"
+    "url": "git+https://github.com/eviltik/cidr-rdns.git"
   },
   "keywords": [
     "cidr",
     "dns",
-    "lookup"
+    "rdns",
+    "lookup",
+    "hostname"
   ],
   "author": "eviltik",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/eviltik/cidr-lookup/issues"
+    "url": "https://github.com/eviltik/cidr-rdns/issues"
   },
-  "homepage": "https://github.com/eviltik/cidr-lookup#readme",
+  "homepage": "https://github.com/eviltik/cidr-rdns#readme",
   "dependencies": {
     "async": "^3.2.0",
     "debug": "^4.3.1",
-    "ip-to-int": "^0.3.1",
+    "ip-to-int": "github:eviltik/node-ip-to-int",
     "netmask": "^1.0.6"
+  },
+  "devDependencies": {
+    "tape": "^5.1.1"
   }
 }

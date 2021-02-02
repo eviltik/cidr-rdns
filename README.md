@@ -1,2 +1,4 @@
-# cidr-lookup
-NodeJS module trying to fetch hostname from a CIDR
+# cidr-rdns
+NodeJS module requesting PTR record from a IPv4 CIDR range.
+
+

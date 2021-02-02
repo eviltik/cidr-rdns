@@ -6,11 +6,13 @@ const EventEmitter = require('events');
 const Netmask = require('netmask').Netmask;
 const ipInt = require('ip-to-int');
 const async = require('async');
+const Dns2 = require('dns2');
 const dns = require('dns');
 const util = require('util');
 
 const DEFAULT_CONCURRENCY = 10;
 const DEFAULT_TIMEOUT = 3000;
+
 
 /*
 https://stackoverflow.com/questions/10777657/node-js-dns-lookup-how-to-set-timeout
@@ -23,16 +25,15 @@ retry: same as ARES_OPT_TRIES
 rotate: same as ARES_OPT_ROTATE
 */
 
-function CidrLookup(opts) {
+function CidrRdns(opts) {
     opts = opts || {};
     opts.concurrency = opts.concurrency || DEFAULT_CONCURRENCY;
     opts.timeout = opts.timeout || DEFAULT_TIMEOUT;
     debug(opts);
 
-    const resolveTimeout = async.timeout(resolve, opts.timeout, () => {
-        console.log('ici');
-    });
+    const resolveTimeout = async.timeout(resolve, opts.timeout);
 
+    let dns2;
     let block;
     let currentint;
     let queue;
@@ -53,38 +54,48 @@ function CidrLookup(opts) {
         queue.unsaturated(onQueueUnsaturated);
     }
 
-    function onResolveFailed(err, ipint) {
-        debug('onResolveFailed', ipint, err);
+    function onResolveFailed(err, item) {
+        debug('onResolveFailed', item, err);
     }
 
-    function onResolveSuccess(ipint, hostnames) {
-        debug('onResolveSuccess', ipint, hostnames);
+    function onResolveSuccess(item, response) {
+        debug('onResolveSuccess', item, response);
     }
 
     function resolve(item, next) {
         item.ip = ipInt(item.ipint).toIP();
         debug('resolve', JSON.stringify(item));
-        try {
-            dns.reverse(item.ip, (err, hostnames) => {
-                if (err) {
-                    onResolveFailed(err, item);
-                    next();
-                    return;
-                }
-                onResolveSuccess(item, hostnames);
+        console.log(dns2);
+        dns2.resolvePTR('12.124.105.46.in-addr.arpa')
+            .then((response) => {
+                onResolveSuccess(item, response);
+                next();
+            })
+            .catch((err) => {
+                onResolveFailed(err, item);
                 next();
             });
-        } catch (err) {
-            onResolveFailed(err, item);
-            next();
-        }
     }
 
-    function initDnsServer() {
-        if (!opts.server) return;
-        if (typeof opts.server === 'string') opts.server = [ opts.server ];
-        debug('initDnsServer', opts.server);
-        dns.setServers(opts.server);
+    function initDnsClient() {
+        debug('initDnsClient');
+
+        if (typeof opts.server === 'string') {
+            opts.server = [ opts.server ];
+        }
+
+        if (!opts.server) {
+            opts.server = dns.getServers();
+        }
+
+        const dnsClientOpts = {
+            nameServers:opts.server,
+            port:opts.port||53
+        };
+
+        console.log(dnsClientOpts);
+
+        dns2 = new Dns2(dnsClientOpts);
     }
 
     async function start(cidr) {
@@ -100,7 +111,7 @@ function CidrLookup(opts) {
         block.firstint = ipInt(block.first).toInt();
         block.lastint = ipInt(block.last).toInt();
         debug('start, firstint %s, lastint %s, count %s', block.firstint, block.lastint, block.size);
-        initDnsServer();
+        initDnsClient();
         initQueue();
         populateQueue();
     }
@@ -138,7 +149,7 @@ function CidrLookup(opts) {
 }
 
 
-util.inherits(CidrLookup, EventEmitter);
+util.inherits(CidrRdns, EventEmitter);
 
-module.exports = CidrLookup;
+module.exports = CidrRdns;
 
