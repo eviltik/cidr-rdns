@@ -1,0 +1,30 @@
+{
+  "name": "cidr-lookup",
+  "version": "0.0.1",
+  "description": "NodeJS module trying to fetch hostname from a CIDR",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eviltik/cidr-lookup.git"
+  },
+  "keywords": [
+    "cidr",
+    "dns",
+    "lookup"
+  ],
+  "author": "eviltik",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eviltik/cidr-lookup/issues"
+  },
+  "homepage": "https://github.com/eviltik/cidr-lookup#readme",
+  "dependencies": {
+    "async": "^3.2.0",
+    "debug": "^4.3.1",
+    "ip-to-int": "^0.3.1",
+    "netmask": "^1.0.6"
+  }
+}
